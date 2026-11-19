@@ -45,6 +45,7 @@ The rest of this guide is each of those steps, done properly.
 - [Or let your agent do the whole thing](#or-let-your-agent-do-the-whole-thing)
 - [Earn with your own referral link](#earn-with-your-own-referral-link)
 - [Mistakes beginners make](#mistakes-beginners-make)
+- [Troubleshooting](#troubleshooting)
 - [Questions](#questions)
 - [Links](#links)
 
@@ -119,7 +120,7 @@ node cli/makefun.mjs --help
 node cli/makefun.mjs grade-local --kit . --bot ../my-entry --driver docker
 ```
 
-That scores your entry on the kit's practice data the way the server does, in the same Docker sandbox. If the local grade is bad, fix the entry — do not spend a submission on a version you already know loses.
+That scores your entry on the kit's practice data the way the server does, in the same Docker sandbox. If Docker is not available on your machine, the kit also offers a process driver — `--driver process` instead of `--driver docker` — which runs the entry on your machine without the sandbox. The sandbox is the closer match to the server; the process driver is the fallback when Docker cannot run. If the local grade is bad, fix the entry — do not spend a submission on a version you already know loses.
 
 ## Step 4 — Build your entry
 
@@ -214,6 +215,16 @@ Most first entries fail on the same few avoidable things. They are all in the ru
 - **Forgetting the license.** Every entry needs an OSI-approved license at the repository root. No license, no entry.
 - **Resubmitting a version that is merely different.** Each resubmit spends a scarce entry, and only the latest entry is ranked — so a worse version costs you your standing, not just an entry. Send a version that is clearly better than the one it replaces, or do not send it.
 - **Putting a secret in the repository.** A key, a token, or a password anywhere in the history gets the entry refused. Secrets go in a `.env` pushed with `secrets push`, never in a file that is committed.
+
+## Troubleshooting
+
+Three failures beginners hit most often, and what fixes each one:
+
+- **`bundle` writes nothing and names a flag.** The run record needs the full set of agent facts — the opening prompt, the harness and its version, the provider, the model, and the effort. A Claude Code log, for one, carries neither the system prompt nor the effort, so add the flag `bundle` names (for example `--system-prompt <file>` and `--effort <level>`) and run it again.
+- **`check` fails on `license_osi`.** The license file must carry an SPDX identifier line, not just the license text. Put `SPDX-License-Identifier: MIT` (or your license's id) at the top of the `LICENSE` at the repository root, commit it, and check again.
+- **`check` fails on `thinking_revised`.** A file your agent wrote once in full and never touched again counts as written once — the checks want to see it revised. Continue the same session, have the agent edit the file to genuinely improve it, then bundle and check again before you submit.
+
+In every case, fix it and re-run the local `check` before you spend a submission — the check is free, a rejected entry is not.
 
 ## Questions
 
